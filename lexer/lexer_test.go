@@ -132,3 +132,47 @@ func TestNextTokenMoreOperators(t *testing.T) {
 		assert.Equal(t, test.expectedLiteral, tok.Literal)
 	}
 }
+
+func TestNextTokenMoreKeywords(t *testing.T) {
+	input := `if (5 < 10) {
+	return true;
+} else {
+	return false;
+}`
+
+	tests := []struct {
+		expectedType    token.TokenType
+		expectedLiteral string
+	}{
+		{token.If, "if"},
+		{token.LParen, "("},
+		{token.Int, "5"},
+		{token.LT, "<"},
+		{token.Int, "10"},
+		{token.RParen, ")"},
+		{token.LBrace, "{"},
+
+		{token.Return, "return"},
+		{token.True, "true"},
+		{token.Semicolon, ";"},
+
+		{token.RBrace, "}"},
+		{token.Else, "else"},
+		{token.LBrace, "{"},
+
+		{token.Return, "return"},
+		{token.False, "false"},
+		{token.Semicolon, ";"},
+
+		{token.RBrace, "}"},
+		{token.EOF, ""},
+	}
+
+	lex := lexer.NewLexer(input)
+
+	for _, test := range tests {
+		tok := lex.NextToken()
+		assert.Equal(t, test.expectedType, tok.Type)
+		assert.Equal(t, test.expectedLiteral, tok.Literal)
+	}
+}
