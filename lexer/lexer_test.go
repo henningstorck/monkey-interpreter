@@ -100,3 +100,35 @@ let result = add(five, ten);
 		assert.Equal(t, test.expectedLiteral, tok.Literal)
 	}
 }
+
+func TestNextTokenMoreOperators(t *testing.T) {
+	input := `!-/*5;
+5 < 10 > 5;`
+
+	tests := []struct {
+		expectedType    token.TokenType
+		expectedLiteral string
+	}{
+		{token.Bang, "!"},
+		{token.Minus, "-"},
+		{token.Slash, "/"},
+		{token.Asterisk, "*"},
+		{token.Int, "5"},
+		{token.Semicolon, ";"},
+		{token.Int, "5"},
+		{token.LT, "<"},
+		{token.Int, "10"},
+		{token.GT, ">"},
+		{token.Int, "5"},
+		{token.Semicolon, ";"},
+		{token.EOF, ""},
+	}
+
+	lex := lexer.NewLexer(input)
+
+	for _, test := range tests {
+		tok := lex.NextToken()
+		assert.Equal(t, test.expectedType, tok.Type)
+		assert.Equal(t, test.expectedLiteral, tok.Literal)
+	}
+}
