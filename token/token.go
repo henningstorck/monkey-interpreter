@@ -24,6 +24,9 @@ const (
 	LT = "<"
 	GT = ">"
 
+	Eq    = "=="
+	NotEq = "!="
+
 	Comma     = ","
 	Semicolon = ";"
 

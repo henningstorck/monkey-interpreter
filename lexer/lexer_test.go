@@ -176,3 +176,32 @@ func TestNextTokenMoreKeywords(t *testing.T) {
 		assert.Equal(t, test.expectedLiteral, tok.Literal)
 	}
 }
+
+func TestNextTokenComposedOperators(t *testing.T) {
+	input := `10 == 10;
+10 != 9;`
+
+	tests := []struct {
+		expectedType    token.TokenType
+		expectedLiteral string
+	}{
+		{token.Int, "10"},
+		{token.Eq, "=="},
+		{token.Int, "10"},
+		{token.Semicolon, ";"},
+
+		{token.Int, "10"},
+		{token.NotEq, "!="},
+		{token.Int, "9"},
+		{token.Semicolon, ";"},
+		{token.EOF, ""},
+	}
+
+	lex := lexer.NewLexer(input)
+
+	for _, test := range tests {
+		tok := lex.NextToken()
+		assert.Equal(t, test.expectedType, tok.Type)
+		assert.Equal(t, test.expectedLiteral, tok.Literal)
+	}
+}
