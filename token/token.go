@@ -32,3 +32,16 @@ const (
 func NewToken(tokenType TokenType, char byte) Token {
 	return Token{Type: tokenType, Literal: string(char)}
 }
+
+var keywords = map[string]TokenType{
+	"fn":  Function,
+	"let": Let,
+}
+
+func LookupIdent(ident string) TokenType {
+	if tok, ok := keywords[ident]; ok {
+		return tok
+	}
+
+	return Ident
+}
