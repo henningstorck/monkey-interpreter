@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/henningstorck/monkey-interpreter/ast"
 	"github.com/henningstorck/monkey-interpreter/lexer"
 	"github.com/henningstorck/monkey-interpreter/token"
@@ -11,10 +13,16 @@ type Parser struct {
 
 	curToken  token.Token
 	peekToken token.Token
+
+	errors []string
 }
 
 func NewParser(lex *lexer.Lexer) *Parser {
-	par := &Parser{lex: lex}
+	par := &Parser{
+		lex:    lex,
+		errors: []string{},
+	}
+
 	par.populateCurAndPeekToken()
 	return par
 }
@@ -90,6 +98,16 @@ func (par *Parser) expectPeek(tokenType token.TokenType) bool {
 		par.nextToken()
 		return true
 	} else {
+		par.peekError(tokenType)
 		return false
 	}
+}
+
+func (par *Parser) Errors() []string {
+	return par.errors
+}
+
+func (par *Parser) peekError(tokenType token.TokenType) {
+	msg := fmt.Sprintf("expected next token to be %s, got %s instead", tokenType, par.peekToken.Type)
+	par.errors = append(par.errors, msg)
 }

@@ -18,6 +18,7 @@ let z = 838383;`
 	par := parser.NewParser(lex)
 
 	program := par.ParseProgram()
+	checkParserErrors(t, par)
 
 	assert.NotNil(t, program)
 	assert.Equal(t, 3, len(program.Statements))
@@ -42,4 +43,20 @@ func testLetStatememt(t *testing.T, stmt ast.Statement, name string) {
 	assert.True(t, ok)
 	assert.Equal(t, name, letStmt.Name.Value)
 	assert.Equal(t, name, letStmt.Name.TokenLiteral())
+}
+
+func checkParserErrors(t *testing.T, par *parser.Parser) {
+	errors := par.Errors()
+
+	if len(errors) == 0 {
+		return
+	}
+
+	t.Errorf("parser has %d errors", len(errors))
+
+	for _, msg := range errors {
+		t.Errorf("parser error: %q", msg)
+	}
+
+	t.FailNow()
 }
