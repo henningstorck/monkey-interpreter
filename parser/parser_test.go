@@ -37,6 +37,27 @@ let z = 838383;`
 	}
 }
 
+func TestReturnStatements(t *testing.T) {
+	input := `return 5;
+return 10;
+return 993322;`
+
+	lex := lexer.NewLexer(input)
+	par := parser.NewParser(lex)
+
+	program := par.ParseProgram()
+	checkParserErrors(t, par)
+
+	assert.NotNil(t, program)
+	assert.Equal(t, 3, len(program.Statements))
+
+	for _, stmt := range program.Statements {
+		returnStmt, ok := stmt.(*ast.ReturnStatement)
+		assert.True(t, ok)
+		assert.Equal(t, "return", returnStmt.TokenLiteral())
+	}
+}
+
 func testLetStatememt(t *testing.T, stmt ast.Statement, name string) {
 	assert.Equal(t, "let", stmt.TokenLiteral())
 	letStmt, ok := stmt.(*ast.LetStatement)
