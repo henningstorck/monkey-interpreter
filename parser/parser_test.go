@@ -16,7 +16,6 @@ let z = 838383;`
 
 	lex := lexer.NewLexer(input)
 	par := parser.NewParser(lex)
-
 	program := par.ParseProgram()
 	checkParserErrors(t, par)
 
@@ -44,7 +43,6 @@ return 993322;`
 
 	lex := lexer.NewLexer(input)
 	par := parser.NewParser(lex)
-
 	program := par.ParseProgram()
 	checkParserErrors(t, par)
 
@@ -56,6 +54,23 @@ return 993322;`
 		assert.True(t, ok)
 		assert.Equal(t, "return", returnStmt.TokenLiteral())
 	}
+}
+
+func TestIdentifierExpression(t *testing.T) {
+	input := "myVar;"
+
+	lex := lexer.NewLexer(input)
+	par := parser.NewParser(lex)
+	program := par.ParseProgram()
+	checkParserErrors(t, par)
+
+	assert.Equal(t, 1, len(program.Statements))
+	expressionStmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	assert.True(t, ok)
+	ident, ok := expressionStmt.Expression.(*ast.Identifier)
+	assert.True(t, ok)
+	assert.Equal(t, "myVar", ident.Value)
+	assert.Equal(t, "myVar", ident.TokenLiteral())
 }
 
 func testLetStatememt(t *testing.T, stmt ast.Statement, name string) {

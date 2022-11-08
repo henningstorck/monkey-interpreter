@@ -8,13 +8,30 @@ import (
 	"github.com/henningstorck/monkey-interpreter/token"
 )
 
+type (
+	prefixParseFn func() ast.Expression
+	infixParseFn  func(ast.Expression) ast.Expression
+)
+
+const (
+	_ int = iota
+	Lowest
+	Equals
+	Sum
+	Product
+	Prefix
+	Call
+)
+
 type Parser struct {
-	lex *lexer.Lexer
+	lex    *lexer.Lexer
+	errors []string
 
 	curToken  token.Token
 	peekToken token.Token
 
-	errors []string
+	prefixParseFns map[token.TokenType]prefixParseFn
+	infixParseFns  map[token.TokenType]infixParseFn
 }
 
 func NewParser(lex *lexer.Lexer) *Parser {
@@ -24,6 +41,10 @@ func NewParser(lex *lexer.Lexer) *Parser {
 	}
 
 	par.populateCurAndPeekToken()
+
+	par.prefixParseFns = make(map[token.TokenType]prefixParseFn)
+	par.registerPrefix(token.Ident, par.parseIdentifier)
+
 	return par
 }
 
@@ -61,7 +82,7 @@ func (par *Parser) parseStatement() ast.Statement {
 	case token.Return:
 		return par.parseReturnStatement()
 	default:
-		return nil
+		return par.parseExpressionStatement()
 	}
 }
 
@@ -100,6 +121,32 @@ func (par *Parser) parseReturnStatement() *ast.ReturnStatement {
 	return stmt
 }
 
+func (par *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+	stmt := &ast.ExpressionStatement{Token: par.curToken}
+	stmt.Expression = par.parseExpression(Lowest)
+
+	if par.peekTokenIs(token.Semicolon) {
+		par.nextToken()
+	}
+
+	return stmt
+}
+
+func (par *Parser) parseExpression(precedence int) ast.Expression {
+	prefixParseFn := par.prefixParseFns[par.curToken.Type]
+
+	if prefixParseFn == nil {
+		return nil
+	}
+
+	leftExp := prefixParseFn()
+	return leftExp
+}
+
+func (par *Parser) parseIdentifier() ast.Expression {
+	return &ast.Identifier{Token: par.curToken, Value: par.curToken.Literal}
+}
+
 func (par *Parser) curTokenIs(tokenType token.TokenType) bool {
 	return par.curToken.Type == tokenType
 }
@@ -125,4 +172,12 @@ func (par *Parser) Errors() []string {
 func (par *Parser) peekError(tokenType token.TokenType) {
 	msg := fmt.Sprintf("expected next token to be %s, got %s instead", tokenType, par.peekToken.Type)
 	par.errors = append(par.errors, msg)
+}
+
+func (par *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
+	par.prefixParseFns[tokenType] = fn
+}
+
+func (par *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
+	par.infixParseFns[tokenType] = fn
 }
