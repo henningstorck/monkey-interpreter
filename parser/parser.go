@@ -18,11 +18,23 @@ const (
 	_ int = iota
 	Lowest
 	Equals
+	LessGreater
 	Sum
 	Product
 	Prefix
 	Call
 )
+
+var precedences = map[token.TokenType]int{
+	token.Eq:       Equals,
+	token.NotEq:    Equals,
+	token.LT:       LessGreater,
+	token.GT:       LessGreater,
+	token.Plus:     Sum,
+	token.Minus:    Sum,
+	token.Slash:    Product,
+	token.Asterisk: Product,
+}
 
 type Parser struct {
 	lex    *lexer.Lexer
@@ -48,6 +60,16 @@ func NewParser(lex *lexer.Lexer) *Parser {
 	par.registerPrefix(token.Int, par.parseIntegerLiteral)
 	par.registerPrefix(token.Bang, par.parsePrefixExpression)
 	par.registerPrefix(token.Minus, par.parsePrefixExpression)
+
+	par.infixParseFns = make(map[token.TokenType]infixParseFn)
+	par.registerInfix(token.Plus, par.parseInfixExpression)
+	par.registerInfix(token.Minus, par.parseInfixExpression)
+	par.registerInfix(token.Slash, par.parseInfixExpression)
+	par.registerInfix(token.Asterisk, par.parseInfixExpression)
+	par.registerInfix(token.Eq, par.parseInfixExpression)
+	par.registerInfix(token.NotEq, par.parseInfixExpression)
+	par.registerInfix(token.LT, par.parseInfixExpression)
+	par.registerInfix(token.GT, par.parseInfixExpression)
 
 	return par
 }
@@ -145,6 +167,18 @@ func (par *Parser) parseExpression(precedence int) ast.Expression {
 	}
 
 	leftExp := prefixParseFn()
+
+	for !par.peekTokenIs(token.Semicolon) && precedence < par.peekPrecedence() {
+		infix := par.infixParseFns[par.peekToken.Type]
+
+		if infix == nil {
+			return leftExp
+		}
+
+		par.nextToken()
+		leftExp = infix(leftExp)
+	}
+
 	return leftExp
 }
 
@@ -182,6 +216,19 @@ func (par *Parser) parsePrefixExpression() ast.Expression {
 	return exp
 }
 
+func (par *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
+	exp := &ast.InfixExpression{
+		Token:    par.curToken,
+		Operator: par.curToken.Literal,
+		Left:     left,
+	}
+
+	precedence := par.curPrecedence()
+	par.nextToken()
+	exp.Right = par.parseExpression(precedence)
+	return exp
+}
+
 func (par *Parser) curTokenIs(tokenType token.TokenType) bool {
 	return par.curToken.Type == tokenType
 }
@@ -215,4 +262,20 @@ func (par *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
 
 func (par *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
 	par.infixParseFns[tokenType] = fn
+}
+
+func (par *Parser) peekPrecedence() int {
+	if precedences, ok := precedences[par.peekToken.Type]; ok {
+		return precedences
+	}
+
+	return Lowest
+}
+
+func (par *Parser) curPrecedence() int {
+	if precedences, ok := precedences[par.curToken.Type]; ok {
+		return precedences
+	}
+
+	return Lowest
 }

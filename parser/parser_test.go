@@ -117,6 +117,108 @@ func TestPrefixExpressions(t *testing.T) {
 	}
 }
 
+func TestInfixExpressions(t *testing.T) {
+	tests := []struct {
+		input      string
+		leftValue  int64
+		operator   string
+		rightValue int64
+	}{
+		{"5 + 5;", 5, "+", 5},
+		{"5 - 5;", 5, "-", 5},
+		{"5 * 5;", 5, "*", 5},
+		{"5 / 5;", 5, "/", 5},
+		{"5 > 5;", 5, ">", 5},
+		{"5 < 5;", 5, "<", 5},
+		{"5 == 5;", 5, "==", 5},
+		{"5 != 5;", 5, "!=", 5},
+	}
+
+	for _, test := range tests {
+		lex := lexer.NewLexer(test.input)
+		par := parser.NewParser(lex)
+		program := par.ParseProgram()
+		checkParserErrors(t, par)
+
+		assert.Equal(t, 1, len(program.Statements))
+		stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+		assert.True(t, ok)
+		exp, ok := stmt.Expression.(*ast.InfixExpression)
+		assert.True(t, ok)
+		testIntegerLiteral(t, exp.Left, test.leftValue)
+		assert.Equal(t, test.operator, exp.Operator)
+		testIntegerLiteral(t, exp.Right, test.rightValue)
+	}
+}
+
+func TestOperatorPrecedenceParsing(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{
+			"-a * b",
+			"((-a) * b)",
+		},
+		{
+			"!-a",
+			"(!(-a))",
+		},
+		{
+			"a + b + c",
+			"((a + b) + c)",
+		},
+		{
+			"a + b - c",
+			"((a + b) - c)",
+		},
+		{
+			"a * b * c",
+			"((a * b) * c)",
+		},
+		{
+			"a * b / c",
+			"((a * b) / c)",
+		},
+		{
+			"a + b / c",
+			"(a + (b / c))",
+		},
+		{
+			"a + b * c + d / e - f",
+			"(((a + (b * c)) + (d / e)) - f)",
+		},
+		{
+			"3 + 4; -5 * 5",
+			"(3 + 4)((-5) * 5)",
+		},
+		{
+			"5 > 4 == 3 < 4",
+			"((5 > 4) == (3 < 4))",
+		},
+		{
+			"5 < 4 != 3 > 4",
+			"((5 < 4) != (3 > 4))",
+		},
+		{
+			"3 + 4 * 5 == 3 * 1 + 4 * 5",
+			"((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
+		},
+		{
+			"3 + 4 * 5 == 3 * 1 + 4 * 5",
+			"((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
+		},
+	}
+
+	for _, test := range tests {
+		lex := lexer.NewLexer(test.input)
+		par := parser.NewParser(lex)
+		program := par.ParseProgram()
+		checkParserErrors(t, par)
+		assert.Equal(t, test.expected, program.String())
+	}
+}
+
 func testLetStatememt(t *testing.T, stmt ast.Statement, name string) {
 	assert.Equal(t, "let", stmt.TokenLiteral())
 	letStmt, ok := stmt.(*ast.LetStatement)
