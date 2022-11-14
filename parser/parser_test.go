@@ -1,6 +1,7 @@
 package parser_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/henningstorck/monkey-interpreter/ast"
@@ -90,12 +91,45 @@ func TestIntegerLiteralExpression(t *testing.T) {
 	assert.Equal(t, "5", intLiteral.TokenLiteral())
 }
 
+func TestPrefixExpressions(t *testing.T) {
+	tests := []struct {
+		input        string
+		operator     string
+		integerValue int64
+	}{
+		{"!5", "!", 5},
+		{"-15", "-", 15},
+	}
+
+	for _, test := range tests {
+		lex := lexer.NewLexer(test.input)
+		par := parser.NewParser(lex)
+		program := par.ParseProgram()
+		checkParserErrors(t, par)
+
+		assert.Equal(t, 1, len(program.Statements))
+		stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+		assert.True(t, ok)
+		exp, ok := stmt.Expression.(*ast.PrefixExpression)
+		assert.True(t, ok)
+		assert.Equal(t, test.operator, exp.Operator)
+		testIntegerLiteral(t, exp.Right, test.integerValue)
+	}
+}
+
 func testLetStatememt(t *testing.T, stmt ast.Statement, name string) {
 	assert.Equal(t, "let", stmt.TokenLiteral())
 	letStmt, ok := stmt.(*ast.LetStatement)
 	assert.True(t, ok)
 	assert.Equal(t, name, letStmt.Name.Value)
 	assert.Equal(t, name, letStmt.Name.TokenLiteral())
+}
+
+func testIntegerLiteral(t *testing.T, exp ast.Expression, value int64) {
+	intLiteral, ok := exp.(*ast.IntegerLiteral)
+	assert.True(t, ok)
+	assert.Equal(t, value, intLiteral.Value)
+	assert.Equal(t, fmt.Sprintf("%d", value), intLiteral.TokenLiteral())
 }
 
 func checkParserErrors(t *testing.T, par *parser.Parser) {
