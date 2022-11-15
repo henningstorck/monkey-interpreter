@@ -93,6 +93,23 @@ func TestIntegerLiteralExpression(t *testing.T) {
 	assert.Equal(t, "5", intLiteral.TokenLiteral())
 }
 
+func TestBooleanLiteralExpression(t *testing.T) {
+	input := "true;"
+
+	lex := lexer.NewLexer(input)
+	par := parser.NewParser(lex)
+	program := par.ParseProgram()
+	checkParserErrors(t, par)
+
+	assert.Equal(t, 1, len(program.Statements))
+	expressionStmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	assert.True(t, ok)
+	boolLiteral, ok := expressionStmt.Expression.(*ast.BooleanLiteral)
+	assert.True(t, ok)
+	assert.True(t, boolLiteral.Value)
+	assert.Equal(t, "true", boolLiteral.TokenLiteral())
+}
+
 func TestPrefixExpressions(t *testing.T) {
 	tests := []struct {
 		input        string
