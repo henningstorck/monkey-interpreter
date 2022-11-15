@@ -8,13 +8,16 @@ import (
 var traceLevel int = 0
 
 const traceIdentPlaceholder string = "\t"
+const traceEnabled bool = false
 
 func indentLevel() string {
 	return strings.Repeat(traceIdentPlaceholder, traceLevel-1)
 }
 
 func tracePrint(msg string) {
-	fmt.Printf("%s%s\n", indentLevel(), msg)
+	if traceEnabled {
+		fmt.Printf("%s%s\n", indentLevel(), msg)
+	}
 }
 
 func incIndent() { traceLevel = traceLevel + 1 }
