@@ -31,6 +31,7 @@ func TestLetStatements(t *testing.T) {
 		stmt, ok := program.Statements[0].(*ast.LetStatement)
 		assert.True(t, ok)
 		testLetStatememt(t, stmt, test.ident)
+		testLiteralExpression(t, stmt.Value, test.value)
 	}
 }
 
@@ -54,6 +55,7 @@ func TestReturnStatements(t *testing.T) {
 		stmt, ok := program.Statements[0].(*ast.ReturnStatement)
 		assert.True(t, ok)
 		assert.Equal(t, "return", stmt.TokenLiteral())
+		testLiteralExpression(t, stmt.ReturnValue, test.value)
 	}
 }
 
