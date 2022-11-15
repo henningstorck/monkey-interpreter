@@ -90,11 +90,7 @@ func (par *Parser) ParseProgram() *ast.Program {
 
 	for par.curToken.Type != token.EOF {
 		stmt := par.parseStatement()
-
-		if stmt != nil {
-			program.Statements = append(program.Statements, stmt)
-		}
-
+		program.Statements = append(program.Statements, stmt)
 		par.nextToken()
 	}
 
