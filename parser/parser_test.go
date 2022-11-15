@@ -68,12 +68,9 @@ func TestIdentifierExpression(t *testing.T) {
 	checkParserErrors(t, par)
 
 	assert.Equal(t, 1, len(program.Statements))
-	expressionStmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
 	assert.True(t, ok)
-	ident, ok := expressionStmt.Expression.(*ast.Identifier)
-	assert.True(t, ok)
-	assert.Equal(t, "myVar", ident.Value)
-	assert.Equal(t, "myVar", ident.TokenLiteral())
+	testLiteralExpression(t, stmt.Expression, "myVar")
 }
 
 func TestIntegerLiteralExpression(t *testing.T) {
@@ -85,12 +82,9 @@ func TestIntegerLiteralExpression(t *testing.T) {
 	checkParserErrors(t, par)
 
 	assert.Equal(t, 1, len(program.Statements))
-	expressionStmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
 	assert.True(t, ok)
-	intLiteral, ok := expressionStmt.Expression.(*ast.IntegerLiteral)
-	assert.True(t, ok)
-	assert.Equal(t, int64(5), intLiteral.Value)
-	assert.Equal(t, "5", intLiteral.TokenLiteral())
+	testLiteralExpression(t, stmt.Expression, 5)
 }
 
 func TestBooleanLiteralExpression(t *testing.T) {
@@ -102,12 +96,9 @@ func TestBooleanLiteralExpression(t *testing.T) {
 	checkParserErrors(t, par)
 
 	assert.Equal(t, 1, len(program.Statements))
-	expressionStmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
 	assert.True(t, ok)
-	boolLiteral, ok := expressionStmt.Expression.(*ast.BooleanLiteral)
-	assert.True(t, ok)
-	assert.True(t, boolLiteral.Value)
-	assert.Equal(t, "true", boolLiteral.TokenLiteral())
+	testLiteralExpression(t, stmt.Expression, true)
 }
 
 func TestPrefixExpressions(t *testing.T) {
@@ -254,8 +245,12 @@ func testLiteralExpression(t *testing.T, exp ast.Expression, expected any) {
 		testIntegerLiteral(t, exp, int64(value))
 	case int64:
 		testIntegerLiteral(t, exp, value)
+	case bool:
+		testBooleanLiteral(t, exp, value)
 	case string:
 		testIdentifier(t, exp, value)
+	default:
+		t.Fail()
 	}
 }
 
@@ -264,6 +259,13 @@ func testIntegerLiteral(t *testing.T, exp ast.Expression, value int64) {
 	assert.True(t, ok)
 	assert.Equal(t, value, intLiteral.Value)
 	assert.Equal(t, fmt.Sprintf("%d", value), intLiteral.TokenLiteral())
+}
+
+func testBooleanLiteral(t *testing.T, exp ast.Expression, value bool) {
+	boolLiteral, ok := exp.(*ast.BooleanLiteral)
+	assert.True(t, ok)
+	assert.Equal(t, value, boolLiteral.Value)
+	assert.Equal(t, fmt.Sprintf("%t", value), boolLiteral.TokenLiteral())
 }
 
 func testIdentifier(t *testing.T, exp ast.Expression, value string) {
