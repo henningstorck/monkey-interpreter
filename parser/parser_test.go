@@ -262,6 +262,53 @@ func TestFunctionParameters(t *testing.T) {
 	}
 }
 
+func TestCallExpression(t *testing.T) {
+	input := "add(1, 2 * 3, 4 + 5);"
+
+	lex := lexer.NewLexer(input)
+	par := parser.NewParser(lex)
+	program := par.ParseProgram()
+	checkParserErrors(t, par)
+
+	assert.Equal(t, 1, len(program.Statements))
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	assert.True(t, ok)
+	exp, ok := stmt.Expression.(*ast.CallExpression)
+	assert.True(t, ok)
+	testIdentifier(t, exp.Function, "add")
+	assert.Equal(t, 3, len(exp.Arguments))
+	testLiteralExpression(t, exp.Arguments[0], 1)
+	testInfixExpression(t, exp.Arguments[1], 2, "*", 3)
+	testInfixExpression(t, exp.Arguments[2], 4, "+", 5)
+}
+
+func TestFunctionArguments(t *testing.T) {
+	tests := []struct {
+		input string
+		args  []any
+	}{
+		{input: "add();", args: []any{}},
+		{input: "add(1);", args: []any{1}},
+		{input: "add(1, 2, 3);", args: []any{1, 2, 3}},
+	}
+
+	for _, test := range tests {
+		lex := lexer.NewLexer(test.input)
+		par := parser.NewParser(lex)
+		program := par.ParseProgram()
+		checkParserErrors(t, par)
+
+		stmt := program.Statements[0].(*ast.ExpressionStatement)
+		exp := stmt.Expression.(*ast.CallExpression)
+
+		assert.Equal(t, len(test.args), len(exp.Arguments))
+
+		for i, arg := range test.args {
+			testLiteralExpression(t, exp.Arguments[i], arg)
+		}
+	}
+}
+
 func TestOperatorPrecedenceParsing(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -354,6 +401,18 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 		{
 			"!(true == true)",
 			"(!(true == true))",
+		},
+		{
+			"a + add(b * c) + d",
+			"((a + add((b * c))) + d)",
+		},
+		{
+			"add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))",
+			"add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))",
+		},
+		{
+			"add(a + b + c * d / f + g)",
+			"add((((a + b) + ((c * d) / f)) + g))",
 		},
 	}
 
