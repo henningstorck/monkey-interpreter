@@ -213,6 +213,55 @@ func TestIfElseExpression(t *testing.T) {
 	testLiteralExpression(t, alternative.Expression, "y")
 }
 
+func TestFunctionLiteral(t *testing.T) {
+	input := "fn(x, y) { x + y; }"
+
+	lex := lexer.NewLexer(input)
+	par := parser.NewParser(lex)
+	program := par.ParseProgram()
+	checkParserErrors(t, par)
+
+	assert.Equal(t, 1, len(program.Statements))
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	assert.True(t, ok)
+	fnLiteral, ok := stmt.Expression.(*ast.FunctionLiteral)
+	assert.True(t, ok)
+	assert.Equal(t, 2, len(fnLiteral.Parameters))
+	testLiteralExpression(t, fnLiteral.Parameters[0], "x")
+	testLiteralExpression(t, fnLiteral.Parameters[1], "y")
+	assert.Equal(t, 1, len(fnLiteral.Body.Statements))
+	bodyStmt, ok := fnLiteral.Body.Statements[0].(*ast.ExpressionStatement)
+	assert.True(t, ok)
+	testInfixExpression(t, bodyStmt.Expression, "x", "+", "y")
+}
+
+func TestFunctionParameters(t *testing.T) {
+	tests := []struct {
+		input  string
+		params []string
+	}{
+		{input: "fn() {};", params: []string{}},
+		{input: "fn(x) {};", params: []string{"x"}},
+		{input: "fn(x, y, z) {};", params: []string{"x", "y", "z"}},
+	}
+
+	for _, test := range tests {
+		lex := lexer.NewLexer(test.input)
+		par := parser.NewParser(lex)
+		program := par.ParseProgram()
+		checkParserErrors(t, par)
+
+		stmt := program.Statements[0].(*ast.ExpressionStatement)
+		fnLiteral := stmt.Expression.(*ast.FunctionLiteral)
+
+		assert.Equal(t, len(test.params), len(fnLiteral.Parameters))
+
+		for i, ident := range test.params {
+			testLiteralExpression(t, fnLiteral.Parameters[i], ident)
+		}
+	}
+}
+
 func TestOperatorPrecedenceParsing(t *testing.T) {
 	tests := []struct {
 		input    string

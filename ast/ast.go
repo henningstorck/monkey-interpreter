@@ -2,6 +2,7 @@ package ast
 
 import (
 	"bytes"
+	"strings"
 
 	"github.com/henningstorck/monkey-interpreter/token"
 )
@@ -208,5 +209,30 @@ func (ifExp IfExpression) String() string {
 		out.WriteString(ifExp.Alternative.String())
 	}
 
+	return out.String()
+}
+
+type FunctionLiteral struct {
+	Token      token.Token
+	Parameters []*Identifier
+	Body       *BlockStatement
+}
+
+func (fnLiteral FunctionLiteral) expressionNode()      {}
+func (fnLiteral FunctionLiteral) TokenLiteral() string { return fnLiteral.Token.Literal }
+
+func (fnLiteral FunctionLiteral) String() string {
+	var out bytes.Buffer
+	params := []string{}
+
+	for _, param := range fnLiteral.Parameters {
+		params = append(params, param.String())
+	}
+
+	out.WriteString(fnLiteral.TokenLiteral())
+	out.WriteString("(")
+	out.WriteString(strings.Join(params, ", "))
+	out.WriteString(") ")
+	out.WriteString(fnLiteral.Body.String())
 	return out.String()
 }
