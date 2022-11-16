@@ -160,11 +160,7 @@ func TestInfixExpressions(t *testing.T) {
 		assert.Equal(t, 1, len(program.Statements))
 		stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
 		assert.True(t, ok)
-		exp, ok := stmt.Expression.(*ast.InfixExpression)
-		assert.True(t, ok)
-		testLiteralExpression(t, exp.Left, test.leftValue)
-		assert.Equal(t, test.operator, exp.Operator)
-		testLiteralExpression(t, exp.Right, test.rightValue)
+		testInfixExpression(t, stmt.Expression, test.leftValue, test.operator, test.rightValue)
 	}
 }
 
@@ -272,6 +268,55 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 	}
 }
 
+func TestIfExpression(t *testing.T) {
+	input := "if (x < y) { x }"
+
+	lex := lexer.NewLexer(input)
+	par := parser.NewParser(lex)
+	program := par.ParseProgram()
+	checkParserErrors(t, par)
+
+	assert.Equal(t, 1, len(program.Statements))
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	assert.True(t, ok)
+	exp, ok := stmt.Expression.(*ast.IfExpression)
+	assert.True(t, ok)
+	testInfixExpression(t, exp.Condition, "x", "<", "y")
+
+	assert.Equal(t, 1, len(exp.Consequence.Statements))
+	consequence, ok := exp.Consequence.Statements[0].(*ast.ExpressionStatement)
+	assert.True(t, ok)
+	testLiteralExpression(t, consequence.Expression, "x")
+
+	assert.Nil(t, exp.Alternative)
+}
+
+func TestIfElseExpression(t *testing.T) {
+	input := "if (x < y) { x } else { y }"
+
+	lex := lexer.NewLexer(input)
+	par := parser.NewParser(lex)
+	program := par.ParseProgram()
+	checkParserErrors(t, par)
+
+	assert.Equal(t, 1, len(program.Statements))
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	assert.True(t, ok)
+	exp, ok := stmt.Expression.(*ast.IfExpression)
+	assert.True(t, ok)
+	testInfixExpression(t, exp.Condition, "x", "<", "y")
+
+	assert.Equal(t, 1, len(exp.Consequence.Statements))
+	consequence, ok := exp.Consequence.Statements[0].(*ast.ExpressionStatement)
+	assert.True(t, ok)
+	testLiteralExpression(t, consequence.Expression, "x")
+
+	assert.Equal(t, 1, len(exp.Alternative.Statements))
+	alternative, ok := exp.Alternative.Statements[0].(*ast.ExpressionStatement)
+	assert.True(t, ok)
+	testLiteralExpression(t, alternative.Expression, "y")
+}
+
 func testLetStatememt(t *testing.T, stmt ast.Statement, name string) {
 	assert.Equal(t, "let", stmt.TokenLiteral())
 	letStmt, ok := stmt.(*ast.LetStatement)
@@ -293,6 +338,14 @@ func testLiteralExpression(t *testing.T, exp ast.Expression, expected any) {
 	default:
 		t.Fail()
 	}
+}
+
+func testInfixExpression(t *testing.T, exp ast.Expression, leftValue any, operator string, rightValue any) {
+	infixExp, ok := exp.(*ast.InfixExpression)
+	assert.True(t, ok)
+	testLiteralExpression(t, infixExp.Left, leftValue)
+	assert.Equal(t, operator, infixExp.Operator)
+	testLiteralExpression(t, infixExp.Right, rightValue)
 }
 
 func testIntegerLiteral(t *testing.T, exp ast.Expression, value int64) {

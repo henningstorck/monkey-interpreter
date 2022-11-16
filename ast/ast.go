@@ -111,6 +111,24 @@ func (expressionStmt *ExpressionStatement) String() string {
 	return ""
 }
 
+type BlockStatement struct {
+	Token      token.Token
+	Statements []Statement
+}
+
+func (blockStmt BlockStatement) expressionNode()      {}
+func (blockStmt BlockStatement) TokenLiteral() string { return blockStmt.Token.Literal }
+
+func (blockStmt BlockStatement) String() string {
+	var out bytes.Buffer
+
+	for _, stmt := range blockStmt.Statements {
+		out.WriteString(stmt.String())
+	}
+
+	return out.String()
+}
+
 type IntegerLiteral struct {
 	Token token.Token
 	Value int64
@@ -166,3 +184,29 @@ type BooleanLiteral struct {
 func (boolLiteral *BooleanLiteral) expressionNode()      {}
 func (boolLiteral *BooleanLiteral) TokenLiteral() string { return boolLiteral.Token.Literal }
 func (boolLiteral *BooleanLiteral) String() string       { return boolLiteral.Token.Literal }
+
+type IfExpression struct {
+	Token       token.Token
+	Condition   Expression
+	Consequence *BlockStatement
+	Alternative *BlockStatement
+}
+
+func (ifExp IfExpression) expressionNode()      {}
+func (ifExp IfExpression) TokenLiteral() string { return ifExp.Token.Literal }
+
+func (ifExp IfExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("if")
+	out.WriteString(ifExp.Condition.String())
+	out.WriteString(" ")
+	out.WriteString(ifExp.Consequence.String())
+
+	if ifExp.Alternative != nil {
+		out.WriteString(" else ")
+		out.WriteString(ifExp.Alternative.String())
+	}
+
+	return out.String()
+}
