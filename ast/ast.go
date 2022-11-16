@@ -66,15 +66,6 @@ func (letStmt *LetStatement) String() string {
 	return out.String()
 }
 
-type Identifier struct {
-	Token token.Token
-	Value string
-}
-
-func (ident *Identifier) expressionNode()      {}
-func (ident *Identifier) TokenLiteral() string { return ident.Token.Literal }
-func (ident *Identifier) String() string       { return ident.Value }
-
 type ReturnStatement struct {
 	Token       token.Token
 	ReturnValue Expression
@@ -129,6 +120,15 @@ func (blockStmt BlockStatement) String() string {
 	return out.String()
 }
 
+type Identifier struct {
+	Token token.Token
+	Value string
+}
+
+func (ident *Identifier) expressionNode()      {}
+func (ident *Identifier) TokenLiteral() string { return ident.Token.Literal }
+func (ident *Identifier) String() string       { return ident.Value }
+
 type IntegerLiteral struct {
 	Token token.Token
 	Value int64
@@ -137,6 +137,15 @@ type IntegerLiteral struct {
 func (intLiteral *IntegerLiteral) expressionNode()      {}
 func (intLiteral *IntegerLiteral) TokenLiteral() string { return intLiteral.Token.Literal }
 func (intLiteral *IntegerLiteral) String() string       { return intLiteral.Token.Literal }
+
+type BooleanLiteral struct {
+	Token token.Token
+	Value bool
+}
+
+func (boolLiteral *BooleanLiteral) expressionNode()      {}
+func (boolLiteral *BooleanLiteral) TokenLiteral() string { return boolLiteral.Token.Literal }
+func (boolLiteral *BooleanLiteral) String() string       { return boolLiteral.Token.Literal }
 
 type PrefixExpression struct {
 	Token    token.Token
@@ -175,15 +184,6 @@ func (infixExp *InfixExpression) String() string {
 	out.WriteString(")")
 	return out.String()
 }
-
-type BooleanLiteral struct {
-	Token token.Token
-	Value bool
-}
-
-func (boolLiteral *BooleanLiteral) expressionNode()      {}
-func (boolLiteral *BooleanLiteral) TokenLiteral() string { return boolLiteral.Token.Literal }
-func (boolLiteral *BooleanLiteral) String() string       { return boolLiteral.Token.Literal }
 
 type IfExpression struct {
 	Token       token.Token

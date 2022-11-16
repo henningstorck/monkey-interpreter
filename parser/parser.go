@@ -198,11 +198,6 @@ func (par *Parser) parseExpression(precedence int) ast.Expression {
 	return leftExp
 }
 
-func (par *Parser) noPrefixParseFnError(tokenType token.TokenType) {
-	msg := fmt.Sprintf("no prefix parse function for %s found", tokenType)
-	par.errors = append(par.errors, msg)
-}
-
 func (par *Parser) parseIdentifier() ast.Expression {
 	defer untrace(trace("parseIdentifier"))
 	return &ast.Identifier{Token: par.curToken, Value: par.curToken.Literal}
@@ -328,6 +323,11 @@ func (par *Parser) Errors() []string {
 
 func (par *Parser) peekError(tokenType token.TokenType) {
 	msg := fmt.Sprintf("expected next token to be %s, got %s instead", tokenType, par.peekToken.Type)
+	par.errors = append(par.errors, msg)
+}
+
+func (par *Parser) noPrefixParseFnError(tokenType token.TokenType) {
+	msg := fmt.Sprintf("no prefix parse function for %s found", tokenType)
 	par.errors = append(par.errors, msg)
 }
 
