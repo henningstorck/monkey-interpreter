@@ -110,6 +110,8 @@ func TestPrefixExpressions(t *testing.T) {
 		{"!5", "!", 5},
 		{"-15", "-", 15},
 		{"-alice", "-", "alice"},
+		{"!true;", "!", true},
+		{"!false;", "!", false},
 	}
 
 	for _, test := range tests {
@@ -144,6 +146,9 @@ func TestInfixExpressions(t *testing.T) {
 		{"5 == 5;", 5, "==", 5},
 		{"5 != 5;", 5, "!=", 5},
 		{"alice * bob;", "alice", "*", "bob"},
+		{"true == true", true, "==", true},
+		{"true != false", true, "!=", false},
+		{"false == false", false, "==", false},
 	}
 
 	for _, test := range tests {
@@ -219,6 +224,22 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 		{
 			"3 + 4 * 5 == 3 * 1 + 4 * 5",
 			"((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
+		},
+		{
+			"true",
+			"true",
+		},
+		{
+			"false",
+			"false",
+		},
+		{
+			"3 > 5 == false",
+			"((3 > 5) == false)",
+		},
+		{
+			"3 < 5 == true",
+			"((3 < 5) == true)",
 		},
 	}
 
