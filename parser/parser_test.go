@@ -425,6 +425,17 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 	}
 }
 
+func TestMissingSemicolon(t *testing.T) {
+	input := "let x = 1 * 2 * 3 * 4 * 5"
+
+	lex := lexer.NewLexer(input)
+	par := parser.NewParser(lex)
+	program := par.ParseProgram()
+	checkParserErrors(t, par)
+
+	assert.Equal(t, "let x = ((((1 * 2) * 3) * 4) * 5);", program.String())
+}
+
 func testLetStatememt(t *testing.T, stmt ast.Statement, name string) {
 	assert.Equal(t, "let", stmt.TokenLiteral())
 	letStmt, ok := stmt.(*ast.LetStatement)
