@@ -6,9 +6,9 @@ import (
 )
 
 var (
-	nullObj  = &object.Null{}
-	trueObj  = &object.Boolean{Value: true}
-	falseObj = &object.Boolean{Value: false}
+	NullObj  = &object.Null{}
+	TrueObj  = &object.Boolean{Value: true}
+	FalseObj = &object.Boolean{Value: false}
 )
 
 func Eval(node ast.Node) object.Object {
@@ -24,6 +24,10 @@ func Eval(node ast.Node) object.Object {
 		left := Eval(node.Left)
 		right := Eval(node.Right)
 		return evalInfixExpression(node.Operator, left, right)
+	case *ast.BlockStatement:
+		return evalStatements(node.Statements)
+	case *ast.IfExpression:
+		return evalIfExpression(node)
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: node.Value}
 	case *ast.BooleanLiteral:
@@ -50,26 +54,26 @@ func evalPrefixExpression(operator string, right object.Object) object.Object {
 	case "-":
 		return evalMinusPrefixOperatorExpression(right)
 	default:
-		return nullObj
+		return NullObj
 	}
 }
 
 func evalBangOperatorExpression(right object.Object) object.Object {
 	switch right {
-	case trueObj:
-		return falseObj
-	case falseObj:
-		return trueObj
-	case nullObj:
-		return trueObj
+	case TrueObj:
+		return FalseObj
+	case FalseObj:
+		return TrueObj
+	case NullObj:
+		return TrueObj
 	default:
-		return falseObj
+		return FalseObj
 	}
 }
 
 func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
 	if right.Type() != object.IntegerObj {
-		return nullObj
+		return NullObj
 	}
 
 	value := right.(*object.Integer).Value
@@ -85,7 +89,7 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 	case operator == "!=":
 		return nativeBoolToBooleanObject(left != right)
 	default:
-		return nullObj
+		return NullObj
 	}
 }
 
@@ -111,14 +115,39 @@ func evalIntegerInfixExpression(operator string, left, right object.Object) obje
 	case "!=":
 		return nativeBoolToBooleanObject(leftValue != rightValue)
 	default:
-		return nullObj
+		return NullObj
+	}
+}
+
+func evalIfExpression(ifExp *ast.IfExpression) object.Object {
+	condition := Eval(ifExp.Condition)
+
+	if isTruthy(condition) {
+		return Eval(ifExp.Consequence)
+	} else if ifExp.Alternative != nil {
+		return Eval(ifExp.Alternative)
+	} else {
+		return NullObj
+	}
+}
+
+func isTruthy(obj object.Object) bool {
+	switch obj {
+	case NullObj:
+		return false
+	case TrueObj:
+		return true
+	case FalseObj:
+		return false
+	default:
+		return true
 	}
 }
 
 func nativeBoolToBooleanObject(input bool) *object.Boolean {
 	if input {
-		return trueObj
+		return TrueObj
 	} else {
-		return falseObj
+		return FalseObj
 	}
 }
