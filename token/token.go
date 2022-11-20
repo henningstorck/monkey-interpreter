@@ -23,8 +23,8 @@ const (
 	Asterisk = "*"
 	Slash    = "/"
 
-	LT = "<"
-	GT = ">"
+	LessThan    = "<"
+	GreaterThan = ">"
 
 	Eq    = "=="
 	NotEq = "!="

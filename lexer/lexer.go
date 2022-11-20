@@ -67,9 +67,9 @@ func (lex *Lexer) NextToken() token.Token {
 	case '/':
 		tok = token.NewToken(token.Slash, lex.char)
 	case '<':
-		tok = token.NewToken(token.LT, lex.char)
+		tok = token.NewToken(token.LessThan, lex.char)
 	case '>':
-		tok = token.NewToken(token.GT, lex.char)
+		tok = token.NewToken(token.GreaterThan, lex.char)
 	case ';':
 		tok = token.NewToken(token.Semicolon, lex.char)
 	case ',':
