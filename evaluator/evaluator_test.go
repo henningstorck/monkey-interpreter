@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestEvalIntegerExpression(t *testing.T) {
+func TestEvalIntegerExpressions(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected int64
@@ -38,7 +38,7 @@ func TestEvalIntegerExpression(t *testing.T) {
 	}
 }
 
-func TestEvalBooleanExpression(t *testing.T) {
+func TestEvalBooleanExpressions(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected bool
@@ -70,7 +70,7 @@ func TestEvalBooleanExpression(t *testing.T) {
 	}
 }
 
-func TestEvalBangOperatorExpression(t *testing.T) {
+func TestEvalBangOperatorExpressions(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected bool
