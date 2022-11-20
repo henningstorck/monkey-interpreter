@@ -64,6 +64,29 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return nil
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
+	case *ast.FunctionLiteral:
+		params := node.Parameters
+		body := node.Body
+
+		return &object.Function{
+			Parameters: params,
+			Env:        env,
+			Body:       body,
+		}
+	case *ast.CallExpression:
+		fn := Eval(node.Function, env)
+
+		if isError(fn) {
+			return fn
+		}
+
+		args := evalExpressions(node.Arguments, env)
+
+		if len(args) == 1 && isError(args[0]) {
+			return args[0]
+		}
+
+		return applyFunction(fn, args)
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: node.Value}
 	case *ast.BooleanLiteral:
@@ -219,6 +242,54 @@ func evalIdentifier(ident *ast.Identifier, env *object.Environment) object.Objec
 	}
 
 	return value
+}
+
+func evalExpressions(exps []ast.Expression, env *object.Environment) []object.Object {
+	var result []object.Object
+
+	for _, exp := range exps {
+		evaluated := Eval(exp, env)
+
+		if isError(evaluated) {
+			return []object.Object{evaluated}
+		}
+
+		result = append(result, evaluated)
+	}
+
+	return result
+}
+
+func applyFunction(obj object.Object, args []object.Object) object.Object {
+	fn, ok := obj.(*object.Function)
+
+	if !ok {
+		return newError("not a function: %s", fn.Type())
+	}
+
+	extEnv := extendFunctionEnv(fn, args)
+	evaluated := Eval(fn.Body, extEnv)
+	return unwrapReturnValue(evaluated)
+}
+
+func extendFunctionEnv(fn *object.Function,
+	args []object.Object) *object.Environment {
+	env := object.NewEnclosedEnvironment(fn.Env)
+
+	for i, param := range fn.Parameters {
+		env.Set(param.Value, args[i])
+	}
+
+	return env
+}
+
+// Prevents return values from bubbleing up and stopping outer functions
+func unwrapReturnValue(obj object.Object) object.Object {
+	if returnValue, ok := obj.(*object.ReturnValue); ok {
+		return returnValue.Value
+	}
+
+	return obj
 }
 
 func nativeBoolToBooleanObject(input bool) *object.Boolean {
