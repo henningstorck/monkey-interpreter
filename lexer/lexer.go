@@ -4,9 +4,9 @@ import "github.com/henningstorck/monkey-interpreter/token"
 
 type Lexer struct {
 	input        string
-	position     int  // current char
-	readPosition int  // current char + 1
-	char         byte // current char under examination
+	position     int
+	readPosition int
+	char         byte
 }
 
 func NewLexer(input string) *Lexer {
