@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLetStatements(t *testing.T) {
+func TestParseLetStatements(t *testing.T) {
 	tests := []struct {
 		input string
 		ident string
@@ -27,11 +27,11 @@ func TestLetStatements(t *testing.T) {
 		stmt, ok := program.Statements[0].(*ast.LetStatement)
 		assert.True(t, ok)
 		testLetStatememt(t, stmt, test.ident)
-		testLiteralExpression(t, stmt.Value, test.value)
+		testLiteral(t, stmt.Value, test.value)
 	}
 }
 
-func TestReturnStatements(t *testing.T) {
+func TestParseReturnStatements(t *testing.T) {
 	tests := []struct {
 		input string
 		value any
@@ -47,38 +47,38 @@ func TestReturnStatements(t *testing.T) {
 		stmt, ok := program.Statements[0].(*ast.ReturnStatement)
 		assert.True(t, ok)
 		assert.Equal(t, "return", stmt.TokenLiteral())
-		testLiteralExpression(t, stmt.ReturnValue, test.value)
+		testLiteral(t, stmt.ReturnValue, test.value)
 	}
 }
 
-func TestIdentifierExpression(t *testing.T) {
+func TestParseIdentifier(t *testing.T) {
 	input := "myVar;"
 	program := testParse(t, input)
 	assert.Equal(t, 1, len(program.Statements))
 	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
 	assert.True(t, ok)
-	testLiteralExpression(t, stmt.Expression, "myVar")
+	testLiteral(t, stmt.Expression, "myVar")
 }
 
-func TestIntegerLiteralExpression(t *testing.T) {
+func TestParseIntegerLiteral(t *testing.T) {
 	input := "5;"
 	program := testParse(t, input)
 	assert.Equal(t, 1, len(program.Statements))
 	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
 	assert.True(t, ok)
-	testLiteralExpression(t, stmt.Expression, 5)
+	testLiteral(t, stmt.Expression, 5)
 }
 
-func TestBooleanLiteralExpression(t *testing.T) {
+func TestParseBooleanLiteral(t *testing.T) {
 	input := "true;"
 	program := testParse(t, input)
 	assert.Equal(t, 1, len(program.Statements))
 	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
 	assert.True(t, ok)
-	testLiteralExpression(t, stmt.Expression, true)
+	testLiteral(t, stmt.Expression, true)
 }
 
-func TestPrefixExpressions(t *testing.T) {
+func TestParsePrefixExpressions(t *testing.T) {
 	tests := []struct {
 		input        string
 		operator     string
@@ -99,11 +99,11 @@ func TestPrefixExpressions(t *testing.T) {
 		exp, ok := stmt.Expression.(*ast.PrefixExpression)
 		assert.True(t, ok)
 		assert.Equal(t, test.operator, exp.Operator)
-		testLiteralExpression(t, exp.Right, test.integerValue)
+		testLiteral(t, exp.Right, test.integerValue)
 	}
 }
 
-func TestInfixExpressions(t *testing.T) {
+func TestParseInfixExpressions(t *testing.T) {
 	tests := []struct {
 		input      string
 		leftValue  any
@@ -133,7 +133,7 @@ func TestInfixExpressions(t *testing.T) {
 	}
 }
 
-func TestIfExpression(t *testing.T) {
+func TestParseIfExpression(t *testing.T) {
 	input := "if (x < y) { x }"
 	program := testParse(t, input)
 
@@ -147,12 +147,12 @@ func TestIfExpression(t *testing.T) {
 	assert.Equal(t, 1, len(exp.Consequence.Statements))
 	consequence, ok := exp.Consequence.Statements[0].(*ast.ExpressionStatement)
 	assert.True(t, ok)
-	testLiteralExpression(t, consequence.Expression, "x")
+	testLiteral(t, consequence.Expression, "x")
 
 	assert.Nil(t, exp.Alternative)
 }
 
-func TestIfElseExpression(t *testing.T) {
+func TestParseIfElseExpression(t *testing.T) {
 	input := "if (x < y) { x } else { y }"
 	program := testParse(t, input)
 
@@ -166,15 +166,15 @@ func TestIfElseExpression(t *testing.T) {
 	assert.Equal(t, 1, len(exp.Consequence.Statements))
 	consequence, ok := exp.Consequence.Statements[0].(*ast.ExpressionStatement)
 	assert.True(t, ok)
-	testLiteralExpression(t, consequence.Expression, "x")
+	testLiteral(t, consequence.Expression, "x")
 
 	assert.Equal(t, 1, len(exp.Alternative.Statements))
 	alternative, ok := exp.Alternative.Statements[0].(*ast.ExpressionStatement)
 	assert.True(t, ok)
-	testLiteralExpression(t, alternative.Expression, "y")
+	testLiteral(t, alternative.Expression, "y")
 }
 
-func TestFunctionLiteral(t *testing.T) {
+func TestParseFunctionLiteral(t *testing.T) {
 	input := "fn(x, y) { x + y; }"
 	program := testParse(t, input)
 	assert.Equal(t, 1, len(program.Statements))
@@ -183,15 +183,15 @@ func TestFunctionLiteral(t *testing.T) {
 	fnLiteral, ok := stmt.Expression.(*ast.FunctionLiteral)
 	assert.True(t, ok)
 	assert.Equal(t, 2, len(fnLiteral.Parameters))
-	testLiteralExpression(t, fnLiteral.Parameters[0], "x")
-	testLiteralExpression(t, fnLiteral.Parameters[1], "y")
+	testLiteral(t, fnLiteral.Parameters[0], "x")
+	testLiteral(t, fnLiteral.Parameters[1], "y")
 	assert.Equal(t, 1, len(fnLiteral.Body.Statements))
 	bodyStmt, ok := fnLiteral.Body.Statements[0].(*ast.ExpressionStatement)
 	assert.True(t, ok)
 	testInfixExpression(t, bodyStmt.Expression, "x", "+", "y")
 }
 
-func TestFunctionParameters(t *testing.T) {
+func TestParseFunctionParameters(t *testing.T) {
 	tests := []struct {
 		input  string
 		params []string
@@ -208,12 +208,12 @@ func TestFunctionParameters(t *testing.T) {
 		assert.Equal(t, len(test.params), len(fnLiteral.Parameters))
 
 		for i, ident := range test.params {
-			testLiteralExpression(t, fnLiteral.Parameters[i], ident)
+			testLiteral(t, fnLiteral.Parameters[i], ident)
 		}
 	}
 }
 
-func TestCallExpression(t *testing.T) {
+func TestParseCallExpression(t *testing.T) {
 	input := "add(1, 2 * 3, 4 + 5);"
 	program := testParse(t, input)
 	assert.Equal(t, 1, len(program.Statements))
@@ -223,12 +223,12 @@ func TestCallExpression(t *testing.T) {
 	assert.True(t, ok)
 	testIdentifier(t, exp.Function, "add")
 	assert.Equal(t, 3, len(exp.Arguments))
-	testLiteralExpression(t, exp.Arguments[0], 1)
+	testLiteral(t, exp.Arguments[0], 1)
 	testInfixExpression(t, exp.Arguments[1], 2, "*", 3)
 	testInfixExpression(t, exp.Arguments[2], 4, "+", 5)
 }
 
-func TestFunctionArguments(t *testing.T) {
+func TestParseCallArguments(t *testing.T) {
 	tests := []struct {
 		input string
 		args  []any
@@ -245,7 +245,7 @@ func TestFunctionArguments(t *testing.T) {
 		assert.Equal(t, len(test.args), len(exp.Arguments))
 
 		for i, arg := range test.args {
-			testLiteralExpression(t, exp.Arguments[i], arg)
+			testLiteral(t, exp.Arguments[i], arg)
 		}
 	}
 }
@@ -363,7 +363,7 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 	}
 }
 
-func TestMissingSemicolon(t *testing.T) {
+func TestParseMissingSemicolon(t *testing.T) {
 	input := "let x = 1 * 2 * 3 * 4 * 5"
 	program := testParse(t, input)
 	assert.Equal(t, "let x = ((((1 * 2) * 3) * 4) * 5);", program.String())
@@ -385,7 +385,7 @@ func testLetStatememt(t *testing.T, stmt ast.Statement, name string) {
 	assert.Equal(t, name, letStmt.Name.TokenLiteral())
 }
 
-func testLiteralExpression(t *testing.T, exp ast.Expression, expected any) {
+func testLiteral(t *testing.T, exp ast.Expression, expected any) {
 	switch value := expected.(type) {
 	case int:
 		testIntegerLiteral(t, exp, int64(value))
@@ -403,9 +403,9 @@ func testLiteralExpression(t *testing.T, exp ast.Expression, expected any) {
 func testInfixExpression(t *testing.T, exp ast.Expression, leftValue any, operator string, rightValue any) {
 	infixExp, ok := exp.(*ast.InfixExpression)
 	assert.True(t, ok)
-	testLiteralExpression(t, infixExp.Left, leftValue)
+	testLiteral(t, infixExp.Left, leftValue)
 	assert.Equal(t, operator, infixExp.Operator)
-	testLiteralExpression(t, infixExp.Right, rightValue)
+	testLiteral(t, infixExp.Right, rightValue)
 }
 
 func testIntegerLiteral(t *testing.T, exp ast.Expression, value int64) {
