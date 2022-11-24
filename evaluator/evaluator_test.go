@@ -114,7 +114,7 @@ func TestEvalIfExpressions(t *testing.T) {
 	}
 }
 
-func TestReturnStatements(t *testing.T) {
+func TestEvalReturnStatements(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected int64
@@ -149,7 +149,7 @@ f(10);`, 20},
 	}
 }
 
-func TestLetStatements(t *testing.T) {
+func TestEvalLetStatements(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected int64
@@ -166,7 +166,7 @@ func TestLetStatements(t *testing.T) {
 	}
 }
 
-func TestFunctionObject(t *testing.T) {
+func TestEvalFunctionObject(t *testing.T) {
 	input := "fn(x) { x + 2; };"
 	evaluated := testEval(input)
 	fn, ok := evaluated.(*object.Function)
@@ -176,7 +176,7 @@ func TestFunctionObject(t *testing.T) {
 	assert.Equal(t, "(x + 2)", fn.Body.String())
 }
 
-func TestFunctionApplication(t *testing.T) {
+func TestEvalFunctionApplication(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected int64
@@ -195,7 +195,7 @@ func TestFunctionApplication(t *testing.T) {
 	}
 }
 
-func TestClosures(t *testing.T) {
+func TestEvalClosures(t *testing.T) {
 	input := `let newAdder = fn(x) {
 	fn(y) { x + y };
 };

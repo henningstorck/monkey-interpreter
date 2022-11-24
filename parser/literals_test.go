@@ -64,8 +64,11 @@ func TestParseFunctionParameters(t *testing.T) {
 
 	for _, test := range tests {
 		program := testParse(t, test.input)
-		stmt := program.Statements[0].(*ast.ExpressionStatement)
-		fnLiteral := stmt.Expression.(*ast.FunctionLiteral)
+		assert.Equal(t, 1, len(program.Statements))
+		stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+		assert.True(t, ok)
+		fnLiteral, ok := stmt.Expression.(*ast.FunctionLiteral)
+		assert.True(t, ok)
 		assert.Equal(t, len(test.params), len(fnLiteral.Parameters))
 
 		for i, ident := range test.params {
