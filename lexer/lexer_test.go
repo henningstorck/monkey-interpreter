@@ -205,3 +205,32 @@ func TestNextTokenComposedOperators(t *testing.T) {
 		assert.Equal(t, test.expectedLiteral, tok.Literal)
 	}
 }
+
+func TestNextTokenStrings(t *testing.T) {
+	input := `"meow";
+"hello world";
+"";`
+
+	tests := []struct {
+		expectedType    token.TokenType
+		expectedLiteral string
+	}{
+		{token.String, "meow"},
+		{token.Semicolon, ";"},
+
+		{token.String, "hello world"},
+		{token.Semicolon, ";"},
+
+		{token.String, ""},
+		{token.Semicolon, ";"},
+		{token.EOF, ""},
+	}
+
+	lex := lexer.NewLexer(input)
+
+	for _, test := range tests {
+		tok := lex.NextToken()
+		assert.Equal(t, test.expectedType, tok.Type)
+		assert.Equal(t, test.expectedLiteral, tok.Literal)
+	}
+}
