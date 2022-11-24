@@ -205,6 +205,14 @@ addTwo(2);`
 	testIntegerObject(t, testEval(input), 4)
 }
 
+func TestEvalStringLiterals(t *testing.T) {
+	input := `"hello world"`
+	evaluated := testEval(input)
+	str, ok := evaluated.(*object.String)
+	assert.True(t, ok)
+	assert.Equal(t, "hello world", str.Value)
+}
+
 func TestErrorHandling(t *testing.T) {
 	tests := []struct {
 		input           string

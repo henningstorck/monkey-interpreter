@@ -15,6 +15,7 @@ const (
 	ReturnValueObj = "RETURN_VALUE"
 	ErrorObj       = "ERROR"
 	FunctionObj    = "FUNCTION"
+	StringObj      = "STRING"
 )
 
 type ObjectType string
@@ -81,3 +82,10 @@ func (fn *Function) Inspect() string {
 	out.WriteString("\n}")
 	return out.String()
 }
+
+type String struct {
+	Value string
+}
+
+func (str *String) Type() ObjectType { return StringObj }
+func (str *String) Inspect() string  { return str.Value }
