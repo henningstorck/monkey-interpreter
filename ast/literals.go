@@ -58,3 +58,12 @@ func (fnLiteral FunctionLiteral) String() string {
 	out.WriteString(fnLiteral.Body.String())
 	return out.String()
 }
+
+type StringLiteral struct {
+	Token token.Token
+	Value string
+}
+
+func (stringLiteral *StringLiteral) expressionNode()      {}
+func (stringLiteral *StringLiteral) TokenLiteral() string { return stringLiteral.Token.Literal }
+func (stringLiteral *StringLiteral) String() string       { return stringLiteral.Token.Literal }

@@ -85,3 +85,10 @@ func (par *Parser) parseFunctionParameters() []*ast.Identifier {
 
 	return identifiers
 }
+
+func (par *Parser) parseStringLiteral() ast.Expression {
+	return &ast.StringLiteral{
+		Token: par.curToken,
+		Value: par.curToken.Literal,
+	}
+}

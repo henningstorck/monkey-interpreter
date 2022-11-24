@@ -77,6 +77,17 @@ func TestParseFunctionParameters(t *testing.T) {
 	}
 }
 
+func TestParseStringLiteral(t *testing.T) {
+	input := `"hello world";`
+	program := testParse(t, input)
+	assert.Equal(t, 1, len(program.Statements))
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	assert.True(t, ok)
+	strLiteral, ok := stmt.Expression.(*ast.StringLiteral)
+	assert.True(t, ok)
+	assert.Equal(t, "hello world", strLiteral.Value)
+}
+
 func testLiteral(t *testing.T, exp ast.Expression, expected any) {
 	switch value := expected.(type) {
 	case int:
