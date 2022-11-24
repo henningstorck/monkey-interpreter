@@ -213,6 +213,14 @@ func TestEvalStringLiterals(t *testing.T) {
 	assert.Equal(t, "hello world", str.Value)
 }
 
+func TestEvalStringConcatenation(t *testing.T) {
+	input := `"hello" + " " + "world"`
+	evaluated := testEval(input)
+	str, ok := evaluated.(*object.String)
+	assert.True(t, ok)
+	assert.Equal(t, "hello world", str.Value)
+}
+
 func TestErrorHandling(t *testing.T) {
 	tests := []struct {
 		input           string
@@ -254,6 +262,10 @@ func TestErrorHandling(t *testing.T) {
 		{
 			"meow",
 			"identifier not found: meow",
+		},
+		{
+			`"hello" - "world"`,
+			"unknown operator: STRING - STRING",
 		},
 	}
 
