@@ -249,13 +249,15 @@ func isTruthy(obj object.Object) bool {
 }
 
 func evalIdentifier(ident *ast.Identifier, env *object.Environment) object.Object {
-	value, ok := env.Get(ident.Value)
-
-	if !ok {
-		return newError("identifier not found: " + ident.Value)
+	if value, ok := env.Get(ident.Value); ok {
+		return value
 	}
 
-	return value
+	if builtin, ok := builtins[ident.Value]; ok {
+		return builtin
+	}
+
+	return newError("identifier not found: " + ident.Value)
 }
 
 func evalExpressions(exps []ast.Expression, env *object.Environment) []object.Object {
@@ -275,15 +277,18 @@ func evalExpressions(exps []ast.Expression, env *object.Environment) []object.Ob
 }
 
 func applyFunction(obj object.Object, args []object.Object) object.Object {
-	fn, ok := obj.(*object.Function)
+	switch fn := obj.(type) {
+	case *object.Function:
+		extEnv := extendFunctionEnv(fn, args)
+		evaluated := Eval(fn.Body, extEnv)
+		return unwrapReturnValue(evaluated)
 
-	if !ok {
+	case *object.Builtin:
+		return fn.Function(args...)
+
+	default:
 		return newError("not a function: %s", fn.Type())
 	}
-
-	extEnv := extendFunctionEnv(fn, args)
-	evaluated := Eval(fn.Body, extEnv)
-	return unwrapReturnValue(evaluated)
 }
 
 func extendFunctionEnv(fn *object.Function,
