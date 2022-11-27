@@ -234,3 +234,28 @@ func TestNextTokenStrings(t *testing.T) {
 		assert.Equal(t, test.expectedLiteral, tok.Literal)
 	}
 }
+
+func TestNextTokenArrays(t *testing.T) {
+	input := "[1, 2];"
+
+	tests := []struct {
+		expectedType    token.TokenType
+		expectedLiteral string
+	}{
+		{token.LBracket, "["},
+		{token.Int, "1"},
+		{token.Comma, ","},
+		{token.Int, "2"},
+		{token.RBracket, "]"},
+		{token.Semicolon, ";"},
+		{token.EOF, ""},
+	}
+
+	lex := lexer.NewLexer(input)
+
+	for _, test := range tests {
+		tok := lex.NextToken()
+		assert.Equal(t, test.expectedType, tok.Type)
+		assert.Equal(t, test.expectedLiteral, tok.Literal)
+	}
+}

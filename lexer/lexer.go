@@ -82,6 +82,10 @@ func (lex *Lexer) NextToken() token.Token {
 		tok = token.NewToken(token.LBrace, lex.char)
 	case '}':
 		tok = token.NewToken(token.RBrace, lex.char)
+	case '[':
+		tok = token.NewToken(token.LBracket, lex.char)
+	case ']':
+		tok = token.NewToken(token.RBracket, lex.char)
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF

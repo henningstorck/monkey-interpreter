@@ -34,10 +34,12 @@ const (
 	Comma     = ","
 	Semicolon = ";"
 
-	LParen = "("
-	RParen = ")"
-	LBrace = "{"
-	RBrace = "}"
+	LParen   = "("
+	RParen   = ")"
+	LBrace   = "{"
+	RBrace   = "}"
+	LBracket = "["
+	RBracket = "]"
 
 	// Keywords
 	Function = "FUNCTION"
