@@ -98,7 +98,6 @@ func (par *Parser) parseIfExpression() ast.Expression {
 }
 
 func (par *Parser) parseCallExpression(fn ast.Expression) ast.Expression {
-
 	exp := &ast.CallExpression{
 		Token:    par.curToken,
 		Function: fn,

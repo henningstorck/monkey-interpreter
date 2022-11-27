@@ -130,8 +130,10 @@ func TestParseCallArguments(t *testing.T) {
 
 	for _, test := range tests {
 		program := testParse(t, test.input)
-		stmt := program.Statements[0].(*ast.ExpressionStatement)
-		exp := stmt.Expression.(*ast.CallExpression)
+		stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+		assert.True(t, ok)
+		exp, ok := stmt.Expression.(*ast.CallExpression)
+		assert.True(t, ok)
 		assert.Equal(t, len(test.args), len(exp.Arguments))
 
 		for i, arg := range test.args {
