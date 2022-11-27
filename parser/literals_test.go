@@ -88,6 +88,20 @@ func TestParseStringLiteral(t *testing.T) {
 	assert.Equal(t, "hello world", strLiteral.Value)
 }
 
+func TestParseArrayLiteral(t *testing.T) {
+	input := `[1, 2 * 2, 3 + 3];`
+	program := testParse(t, input)
+	assert.Equal(t, 1, len(program.Statements))
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	assert.True(t, ok)
+	arrLiteral, ok := stmt.Expression.(*ast.ArrayLiteral)
+	assert.True(t, ok)
+	assert.Equal(t, 3, len(arrLiteral.Elements))
+	testIntegerLiteral(t, arrLiteral.Elements[0], 1)
+	testInfixExpression(t, arrLiteral.Elements[1], 2, "*", 2)
+	testInfixExpression(t, arrLiteral.Elements[2], 3, "+", 3)
+}
+
 func testLiteral(t *testing.T, exp ast.Expression, expected any) {
 	switch value := expected.(type) {
 	case int:

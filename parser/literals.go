@@ -92,3 +92,9 @@ func (par *Parser) parseStringLiteral() ast.Expression {
 		Value: par.curToken.Literal,
 	}
 }
+
+func (par *Parser) parseArrayLiteral() ast.Expression {
+	arrLiteral := &ast.ArrayLiteral{Token: par.curToken}
+	arrLiteral.Elements = par.parseExpressionList(token.RBracket)
+	return arrLiteral
+}

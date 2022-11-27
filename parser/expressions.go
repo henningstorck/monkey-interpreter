@@ -103,30 +103,30 @@ func (par *Parser) parseCallExpression(fn ast.Expression) ast.Expression {
 		Function: fn,
 	}
 
-	exp.Arguments = par.parseCallArguments()
+	exp.Arguments = par.parseExpressionList(token.RParen)
 	return exp
 }
 
-func (par *Parser) parseCallArguments() []ast.Expression {
-	args := []ast.Expression{}
+func (par *Parser) parseExpressionList(end token.TokenType) []ast.Expression {
+	list := []ast.Expression{}
 
-	if par.peekTokenIs(token.RParen) {
+	if par.peekTokenIs(end) {
 		par.nextToken()
-		return args
+		return list
 	}
 
 	par.nextToken()
-	args = append(args, par.parseExpression(Lowest))
+	list = append(list, par.parseExpression(Lowest))
 
 	for par.peekTokenIs(token.Comma) {
 		par.nextToken()
 		par.nextToken()
-		args = append(args, par.parseExpression(Lowest))
+		list = append(list, par.parseExpression(Lowest))
 	}
 
-	if !par.expectPeek(token.RParen) {
+	if !par.expectPeek(end) {
 		return nil
 	}
 
-	return args
+	return list
 }
