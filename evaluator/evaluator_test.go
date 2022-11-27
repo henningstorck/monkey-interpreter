@@ -221,6 +221,17 @@ func TestEvalStringConcatenation(t *testing.T) {
 	assert.Equal(t, "hello world", str.Value)
 }
 
+func TestEvalArrayLiterals(t *testing.T) {
+	input := "[1, 2 * 2, 3 + 3];"
+	evaluated := testEval(input)
+	arr, ok := evaluated.(*object.Array)
+	assert.True(t, ok)
+	assert.Equal(t, 3, len(arr.Elements))
+	testIntegerObject(t, arr.Elements[0], 1)
+	testIntegerObject(t, arr.Elements[1], 4)
+	testIntegerObject(t, arr.Elements[2], 6)
+}
+
 func TestErrorHandling(t *testing.T) {
 	tests := []struct {
 		input           string
