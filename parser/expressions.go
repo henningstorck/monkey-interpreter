@@ -107,6 +107,22 @@ func (par *Parser) parseCallExpression(fn ast.Expression) ast.Expression {
 	return exp
 }
 
+func (par *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
+	exp := &ast.IndexExpression{
+		Token: par.curToken,
+		Left:  left,
+	}
+
+	par.nextToken()
+	exp.Index = par.parseExpression(Lowest)
+
+	if !par.expectPeek(token.RBracket) {
+		return nil
+	}
+
+	return exp
+}
+
 func (par *Parser) parseExpressionList(end token.TokenType) []ast.Expression {
 	list := []ast.Expression{}
 

@@ -99,3 +99,22 @@ func (callExp *CallExpression) String() string {
 	out.WriteString(")")
 	return out.String()
 }
+
+type IndexExpression struct {
+	Token token.Token
+	Left  Expression
+	Index Expression
+}
+
+func (indexExp IndexExpression) expressionNode()      {}
+func (indexExp IndexExpression) TokenLiteral() string { return indexExp.Token.Literal }
+
+func (indexExp IndexExpression) String() string {
+	var out bytes.Buffer
+	out.WriteString("(")
+	out.WriteString(indexExp.Left.String())
+	out.WriteString("[")
+	out.WriteString(indexExp.Index.String())
+	out.WriteString("])")
+	return out.String()
+}

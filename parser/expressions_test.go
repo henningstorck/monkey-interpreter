@@ -142,6 +142,17 @@ func TestParseCallArguments(t *testing.T) {
 	}
 }
 
+func TestParseIndexExpression(t *testing.T) {
+	input := "myArray[1 + 1];"
+	program := testParse(t, input)
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	assert.True(t, ok)
+	exp, ok := stmt.Expression.(*ast.IndexExpression)
+	assert.True(t, ok)
+	testIdentifier(t, exp.Left, "myArray")
+	testInfixExpression(t, exp.Index, 1, "+", 1)
+}
+
 func testInfixExpression(t *testing.T, exp ast.Expression, leftValue any, operator string, rightValue any) {
 	infixExp, ok := exp.(*ast.InfixExpression)
 	assert.True(t, ok)

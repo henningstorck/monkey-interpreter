@@ -22,6 +22,7 @@ const (
 	Product
 	Prefix
 	Call
+	Index
 )
 
 var precedences = map[token.TokenType]int{
@@ -34,6 +35,7 @@ var precedences = map[token.TokenType]int{
 	token.Slash:       Product,
 	token.Asterisk:    Product,
 	token.LParen:      Call,
+	token.LBracket:    Index,
 }
 
 type Parser struct {
@@ -78,6 +80,7 @@ func NewParser(lex *lexer.Lexer) *Parser {
 	par.registerInfix(token.LessThan, par.parseInfixExpression)
 	par.registerInfix(token.GreaterThan, par.parseInfixExpression)
 	par.registerInfix(token.LParen, par.parseCallExpression)
+	par.registerInfix(token.LBracket, par.parseIndexExpression)
 
 	return par
 }
