@@ -32,6 +32,9 @@ func TestEvalBuiltinFunctions(t *testing.T) {
 		{"last([1, 2, 3])", 3},
 		{"last(1)", "argument to `first` must be ARRAY, got INTEGER"},
 		{"last([], [])", "wrong number of arguments. got 2, but expected 1"},
+
+		{"rest([1]);", []int{}},
+		{"rest([1, 2, 3, 4]);", []int{2, 3, 4}},
 	}
 
 	for _, test := range tests {
@@ -44,6 +47,14 @@ func TestEvalBuiltinFunctions(t *testing.T) {
 			errObj, ok := evaluated.(*object.Error)
 			assert.True(t, ok)
 			assert.Equal(t, expected, errObj.Message)
+		case []int:
+			arrObj, ok := evaluated.(*object.Array)
+			assert.True(t, ok)
+			assert.Equal(t, len(expected), len(arrObj.Elements))
+
+			for i, expectedItem := range expected {
+				testIntegerObject(t, arrObj.Elements[i], int64(expectedItem))
+			}
 		case nil:
 			_, ok := evaluated.(*object.Null)
 			assert.True(t, ok)
