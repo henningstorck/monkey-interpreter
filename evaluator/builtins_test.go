@@ -15,7 +15,7 @@ func TestEvalBuiltinFunctions(t *testing.T) {
 		{`len("")`, 0},
 		{`len("four")`, 4},
 		{`len("hello world")`, 11},
-		{`len(1)`, "argument to `len` not supported, got INTEGER"},
+		{`len(1)`, "invalid argument. got INTEGER"},
 		{`len("one", "two")`, "wrong number of arguments. got 2, but expected 1"},
 
 		{"len([])", 0},
@@ -24,21 +24,25 @@ func TestEvalBuiltinFunctions(t *testing.T) {
 		{"first([])", nil},
 		{"first([1])", 1},
 		{"first([1, 2, 3])", 1},
-		{"first(1)", "argument to `first` must be ARRAY, got INTEGER"},
+		{"first(1)", "invalid argument. got INTEGER, but expected ARRAY"},
 		{"first([], [])", "wrong number of arguments. got 2, but expected 1"},
 
 		{"last([])", nil},
 		{"last([1])", 1},
 		{"last([1, 2, 3])", 3},
-		{"last(1)", "argument to `first` must be ARRAY, got INTEGER"},
+		{"last(1)", "invalid argument. got INTEGER, but expected ARRAY"},
 		{"last([], [])", "wrong number of arguments. got 2, but expected 1"},
 
 		{"rest([1]);", []int{}},
 		{"rest([1, 2, 3, 4]);", []int{2, 3, 4}},
+		{"rest(1)", "invalid argument. got INTEGER, but expected ARRAY"},
+		{"rest([], [])", "wrong number of arguments. got 2, but expected 1"},
 
 		{"push([], 1);", []int{1}},
 		{"push([1, 2, 3], 4);", []int{1, 2, 3, 4}},
 		{"push([1, 2, 3], 8 / 2);", []int{1, 2, 3, 4}},
+		{"push(1, 2)", "invalid argument. got INTEGER, but expected ARRAY"},
+		{"push([], 1, 2)", "wrong number of arguments. got 3, but expected 2"},
 	}
 
 	for _, test := range tests {

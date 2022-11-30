@@ -5,8 +5,8 @@ import "github.com/henningstorck/monkey-interpreter/object"
 var builtins = map[string]*object.Builtin{
 	"len": {
 		Function: func(args ...object.Object) object.Object {
-			if len(args) != 1 {
-				return newError("wrong number of arguments. got %d, but expected 1", len(args))
+			if err := expectArguments(args, 1); err != nil {
+				return err
 			}
 
 			switch arg := args[0].(type) {
@@ -15,18 +15,18 @@ var builtins = map[string]*object.Builtin{
 			case *object.Array:
 				return &object.Integer{Value: int64(len(arg.Elements))}
 			default:
-				return newError("argument to `len` not supported, got %s", args[0].Type())
+				return newError("invalid argument. got %s", args[0].Type())
 			}
 		},
 	},
 	"first": {
 		Function: func(args ...object.Object) object.Object {
-			if len(args) != 1 {
-				return newError("wrong number of arguments. got %d, but expected 1", len(args))
+			if err := expectArguments(args, 1); err != nil {
+				return err
 			}
 
-			if args[0].Type() != object.ArrayObj {
-				return newError("argument to `first` must be ARRAY, got %s", args[0].Type())
+			if err := expectArgumentType(args[0], object.ArrayObj); err != nil {
+				return err
 			}
 
 			arr := args[0].(*object.Array)
@@ -40,12 +40,12 @@ var builtins = map[string]*object.Builtin{
 	},
 	"last": {
 		Function: func(args ...object.Object) object.Object {
-			if len(args) != 1 {
-				return newError("wrong number of arguments. got %d, but expected 1", len(args))
+			if err := expectArguments(args, 1); err != nil {
+				return err
 			}
 
-			if args[0].Type() != object.ArrayObj {
-				return newError("argument to `first` must be ARRAY, got %s", args[0].Type())
+			if err := expectArgumentType(args[0], object.ArrayObj); err != nil {
+				return err
 			}
 
 			arr := args[0].(*object.Array)
@@ -60,12 +60,12 @@ var builtins = map[string]*object.Builtin{
 	},
 	"rest": {
 		Function: func(args ...object.Object) object.Object {
-			if len(args) != 1 {
-				return newError("wrong number of arguments. got %d, but expected 1", len(args))
+			if err := expectArguments(args, 1); err != nil {
+				return err
 			}
 
-			if args[0].Type() != object.ArrayObj {
-				return newError("argument to `rest` must be ARRAY, got %s", args[0].Type())
+			if err := expectArgumentType(args[0], object.ArrayObj); err != nil {
+				return err
 			}
 
 			arr := args[0].(*object.Array)
@@ -82,12 +82,12 @@ var builtins = map[string]*object.Builtin{
 	},
 	"push": {
 		Function: func(args ...object.Object) object.Object {
-			if len(args) != 2 {
-				return newError("wrong number of arguments. got %d, but expected 2", len(args))
+			if err := expectArguments(args, 2); err != nil {
+				return err
 			}
 
-			if args[0].Type() != object.ArrayObj {
-				return newError("argument to `push` must be ARRAY, got %s", args[0].Type())
+			if err := expectArgumentType(args[0], object.ArrayObj); err != nil {
+				return err
 			}
 
 			arr := args[0].(*object.Array)
@@ -98,4 +98,20 @@ var builtins = map[string]*object.Builtin{
 			return &object.Array{Elements: newElements}
 		},
 	},
+}
+
+func expectArguments(args []object.Object, expected int) *object.Error {
+	if len(args) != expected {
+		return newError("wrong number of arguments. got %d, but expected %d", len(args), expected)
+	}
+
+	return nil
+}
+
+func expectArgumentType(arg object.Object, objType object.ObjectType) *object.Error {
+	if arg.Type() != object.ArrayObj {
+		return newError("invalid argument. got %s, but expected %s", arg.Type(), objType)
+	}
+
+	return nil
 }
