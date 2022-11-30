@@ -58,7 +58,7 @@ func TestEvalBuiltinFunctions(t *testing.T) {
 		case []int:
 			arrObj, ok := evaluated.(*object.Array)
 			assert.True(t, ok)
-			assert.Equal(t, len(expected), len(arrObj.Elements))
+			assert.Len(t, arrObj.Elements, len(expected))
 
 			for i, expectedItem := range expected {
 				testIntegerObject(t, arrObj.Elements[i], int64(expectedItem))

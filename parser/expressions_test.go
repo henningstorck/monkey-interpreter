@@ -22,7 +22,7 @@ func TestParsePrefixExpressions(t *testing.T) {
 
 	for _, test := range tests {
 		program := testParse(t, test.input)
-		assert.Equal(t, 1, len(program.Statements))
+		assert.Len(t, program.Statements, 1)
 		stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
 		assert.True(t, ok)
 		exp, ok := stmt.Expression.(*ast.PrefixExpression)
@@ -55,7 +55,7 @@ func TestParseInfixExpressions(t *testing.T) {
 
 	for _, test := range tests {
 		program := testParse(t, test.input)
-		assert.Equal(t, 1, len(program.Statements))
+		assert.Len(t, program.Statements, 1)
 		stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
 		assert.True(t, ok)
 		testInfixExpression(t, stmt.Expression, test.leftValue, test.operator, test.rightValue)
@@ -66,14 +66,14 @@ func TestParseIfExpression(t *testing.T) {
 	input := "if (x < y) { x }"
 	program := testParse(t, input)
 
-	assert.Equal(t, 1, len(program.Statements))
+	assert.Len(t, program.Statements, 1)
 	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
 	assert.True(t, ok)
 	exp, ok := stmt.Expression.(*ast.IfExpression)
 	assert.True(t, ok)
 	testInfixExpression(t, exp.Condition, "x", "<", "y")
 
-	assert.Equal(t, 1, len(exp.Consequence.Statements))
+	assert.Len(t, exp.Consequence.Statements, 1)
 	consequence, ok := exp.Consequence.Statements[0].(*ast.ExpressionStatement)
 	assert.True(t, ok)
 	testLiteral(t, consequence.Expression, "x")
@@ -85,19 +85,19 @@ func TestParseIfElseExpression(t *testing.T) {
 	input := "if (x < y) { x } else { y }"
 	program := testParse(t, input)
 
-	assert.Equal(t, 1, len(program.Statements))
+	assert.Len(t, program.Statements, 1)
 	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
 	assert.True(t, ok)
 	exp, ok := stmt.Expression.(*ast.IfExpression)
 	assert.True(t, ok)
 	testInfixExpression(t, exp.Condition, "x", "<", "y")
 
-	assert.Equal(t, 1, len(exp.Consequence.Statements))
+	assert.Len(t, exp.Consequence.Statements, 1)
 	consequence, ok := exp.Consequence.Statements[0].(*ast.ExpressionStatement)
 	assert.True(t, ok)
 	testLiteral(t, consequence.Expression, "x")
 
-	assert.Equal(t, 1, len(exp.Alternative.Statements))
+	assert.Len(t, exp.Alternative.Statements, 1)
 	alternative, ok := exp.Alternative.Statements[0].(*ast.ExpressionStatement)
 	assert.True(t, ok)
 	testLiteral(t, alternative.Expression, "y")
@@ -106,13 +106,13 @@ func TestParseIfElseExpression(t *testing.T) {
 func TestParseCallExpression(t *testing.T) {
 	input := "add(1, 2 * 3, 4 + 5);"
 	program := testParse(t, input)
-	assert.Equal(t, 1, len(program.Statements))
+	assert.Len(t, program.Statements, 1)
 	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
 	assert.True(t, ok)
 	exp, ok := stmt.Expression.(*ast.CallExpression)
 	assert.True(t, ok)
 	testIdentifier(t, exp.Function, "add")
-	assert.Equal(t, 3, len(exp.Arguments))
+	assert.Len(t, exp.Arguments, 3)
 	testLiteral(t, exp.Arguments[0], 1)
 	testInfixExpression(t, exp.Arguments[1], 2, "*", 3)
 	testInfixExpression(t, exp.Arguments[2], 4, "+", 5)
@@ -134,7 +134,7 @@ func TestParseCallArguments(t *testing.T) {
 		assert.True(t, ok)
 		exp, ok := stmt.Expression.(*ast.CallExpression)
 		assert.True(t, ok)
-		assert.Equal(t, len(test.args), len(exp.Arguments))
+		assert.Len(t, exp.Arguments, len(test.args))
 
 		for i, arg := range test.args {
 			testLiteral(t, exp.Arguments[i], arg)

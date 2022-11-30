@@ -171,7 +171,7 @@ func TestEvalFunctionObject(t *testing.T) {
 	evaluated := testEval(input)
 	fn, ok := evaluated.(*object.Function)
 	assert.True(t, ok)
-	assert.Equal(t, 1, len(fn.Parameters))
+	assert.Len(t, fn.Parameters, 1)
 	assert.Equal(t, "x", fn.Parameters[0].String())
 	assert.Equal(t, "(x + 2)", fn.Body.String())
 }
@@ -226,7 +226,7 @@ func TestEvalArrayLiterals(t *testing.T) {
 	evaluated := testEval(input)
 	arr, ok := evaluated.(*object.Array)
 	assert.True(t, ok)
-	assert.Equal(t, 3, len(arr.Elements))
+	assert.Len(t, arr.Elements, 3)
 	testIntegerObject(t, arr.Elements[0], 1)
 	testIntegerObject(t, arr.Elements[1], 4)
 	testIntegerObject(t, arr.Elements[2], 6)

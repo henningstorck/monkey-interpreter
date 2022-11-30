@@ -11,7 +11,7 @@ import (
 func TestParseIdentifier(t *testing.T) {
 	input := "myVar;"
 	program := testParse(t, input)
-	assert.Equal(t, 1, len(program.Statements))
+	assert.Len(t, program.Statements, 1)
 	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
 	assert.True(t, ok)
 	testLiteral(t, stmt.Expression, "myVar")
@@ -20,7 +20,7 @@ func TestParseIdentifier(t *testing.T) {
 func TestParseIntegerLiteral(t *testing.T) {
 	input := "5;"
 	program := testParse(t, input)
-	assert.Equal(t, 1, len(program.Statements))
+	assert.Len(t, program.Statements, 1)
 	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
 	assert.True(t, ok)
 	testLiteral(t, stmt.Expression, 5)
@@ -29,7 +29,7 @@ func TestParseIntegerLiteral(t *testing.T) {
 func TestParseBooleanLiteral(t *testing.T) {
 	input := "true;"
 	program := testParse(t, input)
-	assert.Equal(t, 1, len(program.Statements))
+	assert.Len(t, program.Statements, 1)
 	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
 	assert.True(t, ok)
 	testLiteral(t, stmt.Expression, true)
@@ -38,15 +38,15 @@ func TestParseBooleanLiteral(t *testing.T) {
 func TestParseFunctionLiteral(t *testing.T) {
 	input := "fn(x, y) { x + y; }"
 	program := testParse(t, input)
-	assert.Equal(t, 1, len(program.Statements))
+	assert.Len(t, program.Statements, 1)
 	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
 	assert.True(t, ok)
 	fnLiteral, ok := stmt.Expression.(*ast.FunctionLiteral)
 	assert.True(t, ok)
-	assert.Equal(t, 2, len(fnLiteral.Parameters))
+	assert.Len(t, fnLiteral.Parameters, 2)
 	testLiteral(t, fnLiteral.Parameters[0], "x")
 	testLiteral(t, fnLiteral.Parameters[1], "y")
-	assert.Equal(t, 1, len(fnLiteral.Body.Statements))
+	assert.Len(t, fnLiteral.Body.Statements, 1)
 	bodyStmt, ok := fnLiteral.Body.Statements[0].(*ast.ExpressionStatement)
 	assert.True(t, ok)
 	testInfixExpression(t, bodyStmt.Expression, "x", "+", "y")
@@ -64,12 +64,12 @@ func TestParseFunctionParameters(t *testing.T) {
 
 	for _, test := range tests {
 		program := testParse(t, test.input)
-		assert.Equal(t, 1, len(program.Statements))
+		assert.Len(t, program.Statements, 1)
 		stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
 		assert.True(t, ok)
 		fnLiteral, ok := stmt.Expression.(*ast.FunctionLiteral)
 		assert.True(t, ok)
-		assert.Equal(t, len(test.params), len(fnLiteral.Parameters))
+		assert.Len(t, fnLiteral.Parameters, len(test.params))
 
 		for i, ident := range test.params {
 			testLiteral(t, fnLiteral.Parameters[i], ident)
@@ -80,7 +80,7 @@ func TestParseFunctionParameters(t *testing.T) {
 func TestParseStringLiteral(t *testing.T) {
 	input := `"hello world";`
 	program := testParse(t, input)
-	assert.Equal(t, 1, len(program.Statements))
+	assert.Len(t, program.Statements, 1)
 	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
 	assert.True(t, ok)
 	strLiteral, ok := stmt.Expression.(*ast.StringLiteral)
@@ -91,12 +91,12 @@ func TestParseStringLiteral(t *testing.T) {
 func TestParseArrayLiteral(t *testing.T) {
 	input := `[1, 2 * 2, 3 + 3];`
 	program := testParse(t, input)
-	assert.Equal(t, 1, len(program.Statements))
+	assert.Len(t, program.Statements, 1)
 	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
 	assert.True(t, ok)
 	arrLiteral, ok := stmt.Expression.(*ast.ArrayLiteral)
 	assert.True(t, ok)
-	assert.Equal(t, 3, len(arrLiteral.Elements))
+	assert.Len(t, arrLiteral.Elements, 3)
 	testIntegerLiteral(t, arrLiteral.Elements[0], 1)
 	testInfixExpression(t, arrLiteral.Elements[1], 2, "*", 2)
 	testInfixExpression(t, arrLiteral.Elements[2], 3, "+", 3)

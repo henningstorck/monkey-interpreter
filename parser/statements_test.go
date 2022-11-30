@@ -20,7 +20,7 @@ func TestParseLetStatements(t *testing.T) {
 
 	for _, test := range tests {
 		program := testParse(t, test.input)
-		assert.Equal(t, 1, len(program.Statements))
+		assert.Len(t, program.Statements, 1)
 		stmt, ok := program.Statements[0].(*ast.LetStatement)
 		assert.True(t, ok)
 		testLetStatememt(t, stmt, test.ident)
@@ -40,7 +40,7 @@ func TestParseReturnStatements(t *testing.T) {
 
 	for _, test := range tests {
 		program := testParse(t, test.input)
-		assert.Equal(t, 1, len(program.Statements))
+		assert.Len(t, program.Statements, 1)
 		stmt, ok := program.Statements[0].(*ast.ReturnStatement)
 		assert.True(t, ok)
 		assert.Equal(t, "return", stmt.TokenLiteral())
