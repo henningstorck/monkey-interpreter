@@ -10,7 +10,7 @@ import (
 func TestEvalBuiltinFunctions(t *testing.T) {
 	tests := []struct {
 		input    string
-		expected interface{}
+		expected any
 	}{
 		{`len("")`, 0},
 		{`len("four")`, 4},
