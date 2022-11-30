@@ -35,6 +35,10 @@ func TestEvalBuiltinFunctions(t *testing.T) {
 
 		{"rest([1]);", []int{}},
 		{"rest([1, 2, 3, 4]);", []int{2, 3, 4}},
+
+		{"push([], 1);", []int{1}},
+		{"push([1, 2, 3], 4);", []int{1, 2, 3, 4}},
+		{"push([1, 2, 3], 8 / 2);", []int{1, 2, 3, 4}},
 	}
 
 	for _, test := range tests {
